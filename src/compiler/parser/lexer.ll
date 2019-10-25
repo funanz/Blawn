@@ -1,8 +1,8 @@
 %{
 #include <string>
 #include <algorithm>
-#include "parser.tab.hh"
-#include "scanner.hpp"
+#include "parser/parser.hh"
+#include "parser/scanner.hpp"
 #undef  YY_DECL
 #define YY_DECL int Blawn::Scanner::yylex( Blawn::Parser::semantic_type * const lval, Blawn::Parser::location_type *loc )
 #define yyterminate() return Blawn::Parser::token::END;
@@ -15,6 +15,7 @@
 %option noinput
 %option nounput
 %option c++
+%option outfile="lex.yy.c"
 
 COMMENT             \/\/.*\n
 STRING_LITERAL      \"[^\"]*\"

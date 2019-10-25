@@ -6,7 +6,7 @@
 #include <string>
 #include "driver.hpp"
 #include "location.hh"
-#include "parser.tab.hh"
+#include "parser/parser.hh"
 
 namespace Blawn {
 

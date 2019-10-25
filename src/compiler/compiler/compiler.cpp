@@ -20,12 +20,15 @@
 #include "../ast_generator/ast_generator.hpp"
 #include "../utils/utils.hpp"
 #include "compiler.hpp"
+#include "config-am.h"
 
 using namespace std::experimental;
 
 std::string self_app_path;
 
 std::string abs(std::string path) { return self_app_path + "/" + path; }
+std::string lib(std::string path) { return PKGLIBDIR"/" + path; }
+std::string tmp(std::string path) { return TMPDIR"/" + path; }
 
 std::vector<std::string> get_compile_commands(int argc, char** argv) {
     if (argc == 1) {
@@ -34,7 +37,7 @@ std::vector<std::string> get_compile_commands(int argc, char** argv) {
     }
     std::string filename = abs(argv[1]);
     std::string ir_filename =
-        abs("tmp/" + utils::get_filename(argv[1]) + ".ll");
+        tmp(utils::get_filename(argv[1]) + ".ll");
     bool is_link = false;
     std::string to_link;
     std::string output_filename = utils::get_filename(filename) + ".out";
@@ -59,29 +62,29 @@ std::vector<std::string> get_compile_commands(int argc, char** argv) {
         }
     }
     std::vector<std::string> commands;
-    std::string cmd1 = abs("./data/llc") + " -O3 " + ir_filename + " -o " +
-                       abs("tmp/result.s");
+    std::string cmd1 = LLVM_LLC" -O3 " + ir_filename + " -o " +
+                       tmp("result.s");
     commands.push_back(cmd1.c_str());
     if (is_link) {
-        commands.push_back("gcc -c " + abs("tmp/result.s") + " -o " +
-                           abs("tmp/obj.o") + " -no-pie");
+        commands.push_back("gcc -c " + tmp("result.s") + " -o " +
+                           tmp("obj.o") + " -no-pie");
         std::string cmd =
-            ("gcc -no-pie " + abs("tmp/obj.o") + " " + abs("data/builtins.o") +
+            ("gcc -no-pie " + tmp("obj.o") + " " + lib("builtins.o") +
              " " + to_link + " -o " + output_filename + " " + arguments);
         commands.push_back(cmd.c_str());
     } else {
-        std::string cmd = "gcc " + arguments + " " + abs("tmp/result.s") + " " +
-                          abs("data/builtins.o") + " -no-pie -o " +
+        std::string cmd = "gcc " + arguments + " " + tmp("result.s") + " " +
+                          lib("builtins.o") + " -no-pie -o " +
                           output_filename;
         commands.push_back(cmd.c_str());
     }
     std::string cmd = ("./" + output_filename);
     commands.push_back(cmd.c_str());
-    // commands.push_back("rm tmp/*.ll");
-    commands.push_back("rm " + abs("tmp") + "/*.s");
-    commands.push_back("rm " + abs("tmp") + "/*.blawn");
-    commands.push_back("rm " + abs("tmp") + "/*.ll");
-    if (is_link) commands.push_back("rm " + abs("tmp") + "/*.o");
+    // commands.push_back("rm " + tmp("*.ll"));
+    commands.push_back("rm " + tmp("*.s"));
+    commands.push_back("rm " + tmp("*.blawn"));
+    commands.push_back("rm " + tmp("*.ll"));
+    if (is_link) commands.push_back("rm " + tmp("*.o"));
     return commands;
 }
 
@@ -123,7 +126,7 @@ int compile(int argc, char** argv) {
     readlink("/proc/self/exe", buf, 1000);
     self_app_path = filesystem::absolute(buf).parent_path().string();
     std::string expanded_filename =
-        abs("tmp/" + utils::get_filename(filename) + ".blawn");
+        tmp(utils::get_filename(filename) + ".blawn");
     std::ofstream expand_file(expanded_filename);
     if (!expand_file) {
         std::cerr << "cannot open file " << expanded_filename << std::endl;
@@ -168,7 +171,7 @@ int compile(int argc, char** argv) {
     ir_builder->CreateRet(zero);
 
     std::string output_filename =
-        abs("tmp/" + utils::get_filename(filename) + ".ll");
+        tmp(utils::get_filename(filename) + ".ll");
     std::error_code error;
     llvm::raw_fd_ostream stream(output_filename.c_str(), error,
                                 llvm::sys::fs::OpenFlags::F_None);
@@ -178,10 +181,10 @@ int compile(int argc, char** argv) {
         bool is_failed = system(command.c_str());
         if (is_failed) {
             std::cout << "compilation failed.\n....Don't mind!" << std::endl;
-            commands.push_back("rm " + abs("tmp") + "/*.s");
-            commands.push_back("rm " + abs("tmp") + "/*.blawn");
-            commands.push_back("rm " + abs("tmp") + "/*.ll");
-            commands.push_back("rm " + abs("tmp") + "/*.o");
+            commands.push_back("rm " + tmp("*.s"));
+            commands.push_back("rm " + tmp("*.blawn"));
+            commands.push_back("rm " + tmp("*.ll"));
+            commands.push_back("rm " + tmp("*.o"));
             return 1;
         }
     }

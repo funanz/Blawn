@@ -1,9 +1,10 @@
+#!@PYTHON3@
 import sys,os
 import ctypes
 import clang.cindex
 from clang.cindex import Index,Config,CursorKind,TypeKind,TranslationUnit
-Config.set_library_path('/usr/lib/llvm-6.0/lib/')
-Config.set_library_file('/usr/lib/llvm-6.0/lib/libclang.so.1')
+Config.set_library_path('@LLVM_LIBDIR@')
+Config.set_library_file('@LLVM_LIBCLANG@')
 REAL_NUMBER_TYPES = set({
     TypeKind.DOUBLE,TypeKind.FLOAT,TypeKind.FLOAT128
 })

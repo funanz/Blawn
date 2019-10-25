@@ -1,8 +1,8 @@
 #pragma once
 #include <cstddef>
 #include <istream>
-#include "parser.tab.hh"
-#include "scanner.hpp"
+#include "parser/parser.hh"
+#include "parser/scanner.hpp"
 
 namespace Blawn {
 
