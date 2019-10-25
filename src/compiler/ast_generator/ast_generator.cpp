@@ -153,6 +153,7 @@ std::shared_ptr<Node> ASTGenerator::get_named_value(std::string name) {
         }
         logger.set_line_number(line_number);
         logger.unknown_identifier_error("variable", name);
+		throw std::runtime_error("unknown identifier error");
     }
 }
 

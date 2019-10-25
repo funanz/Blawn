@@ -269,6 +269,7 @@ llvm::Value* VariableIRGenerator::generate(Node& node_) {
         if (node.global_ptr != nullptr)
             return ir_builder.CreateLoad(node.global_ptr);
     }
+	throw std::runtime_error("node is not generated");
 }
 
 llvm::Value* AssigmentIRGenerator::generate(Node& node_) {
